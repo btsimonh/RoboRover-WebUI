@@ -54,12 +54,19 @@ char setup_IR_modulation[]  = "W,160,63400\n";
 char request_data[]         = "T,500,0\nT,500,1\n";
 char stop_data[]            = "T,0,0\nT,0,1\n";
 
-char sense_backwards[]      = "IX,3,1,5555\n";
-char sense_highpower[]      = "IX,2,1,1111\n";
-char sense_lowpower[]       = "IX,1,1,3333\n";
+char sense_lowpower[]       = "IX,3,1,5555\n";
+char sense_backwards[]      = "IX,2,1,1111\n";
+char sense_highpower[]      = "IX,1,1,3333\n";
 
 
 char LastIR[3][100];
+
+
+// 0 = high power left ear 
+// 1 = high power right ear
+// 2 = low power left ear 
+// 3 = low power right ear
+// 4 = rear
 
 int IRDetect[5] = {0};
 
@@ -467,9 +474,9 @@ void* autonomySendCommand(char* cmd) {
 
 char IRInputStr[][20] =
 {
-    "Right",
     "Left",
     "Back",
+    "Right",
     "Invalid"
 };
 
@@ -534,23 +541,28 @@ void parse_ubw( char c )
             printf( "-> IRIn %s; IRType %s; IRVal %X\n", IRInputStr[IRInput], IRTypeStr[IRType], IRValue );
             sprintf(LastIR[IRInput], "%s:%08.8X", IRTypeStr[IRType], IRValue );
 
-            if (IRValue == 0xd555)
-                {
-                IRDetect[4]+=3;
-                }
+            //if (IRValue == 0xd555)
             if (IRValue == 0x9111)
                 {
-                if (IRInput == 0)
-                    IRDetect[0]+=3;
-                if (IRInput == 1)
-                    IRDetect[1]+=3;
+                IRDetect[4]+=5;
                 }
+
+            //if (IRValue == 0x9111)
             if (IRValue == 0xB333)
                 {
                 if (IRInput == 0)
-                    IRDetect[2] += 3;
-                if (IRInput == 1)
-                    IRDetect[3] += 3;
+                    IRDetect[0]+=5;
+                if (IRInput == 2)
+                    IRDetect[1]+=5;
+                }
+            
+            //if (IRValue == 0xB333)
+            if (IRValue == 0xD555)
+                {
+                if (IRInput == 0)
+                    IRDetect[2] += 5;
+                if (IRInput == 2)
+                    IRDetect[3] += 5;
                 }
             }
         else
