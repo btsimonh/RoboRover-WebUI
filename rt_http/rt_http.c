@@ -78,19 +78,19 @@ typedef struct tag_Commands
 
 COMMANDS Commands[] =
 {
-    { "stop", "HB,0,0\n" },
+    { "stop",     "HB,0,0\n" },
 
-    { "forward", "HB,5,5\n" },
+    { "forward",  "HB,5,5\n" },
 
-    { "fwdleft", "HB,0,5\n" },
-    { "left", "HB,-5,5\n" },
-    { "bwdleft", "HB,-5,0\n" },
+    { "fwdleft",  "HB,0,5\n" },
+    { "left",     "HB,-5,5\n" },
+    { "bwdleft",  "HB,0,-5\n" },
 
     { "fwdright", "HB,5,0\n" },
-    { "right", "HB,5,-5\n" },
-    { "bwdright", "HB,0,-5\n" },
+    { "right",    "HB,5,-5\n" },
+    { "bwdright", "HB,-5,0\n" },
 
-    { "reverse", "HB,-5,-5\n" },
+    { "reverse",  "HB,-5,-5\n" },
 };
 
 
