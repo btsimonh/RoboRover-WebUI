@@ -46,8 +46,7 @@ char setup_IR_out_power[]   = "PD,B,1,0\nPO,B,1,1\n";
 
 char setup_hbridge[]        = "HS,D,2,D,3,D,0,D,1\n";
 char stop_hbridge[]         = "HB,0,0\n";
-char setup_analogue[]       = "C,255,255,255,6\n";
-
+char setup_analogue[]       = "C,255,255,255,1\n";
 
 
 char setup_IR_modulation[]  = "W,160,63400\n";
@@ -141,6 +140,7 @@ int main(int argc, char **argv)
   printf("Initialise\n");
 
   sendCode(startup);
+  sendCode(setup_analogue);
   sendCode(setup_IR_in_direction);
   sendCode(setup_IR_out);
   sendCode(setup_IR_out_power);
@@ -149,9 +149,7 @@ int main(int argc, char **argv)
   sendCode(stop_hbridge);
   sendCode(stop_data);  
 
-
-  sendCode(setup_analogue);
-  sendCode(request_data);
+  sendCode(request_data);
 
 
 
@@ -344,7 +342,7 @@ void* launch_sensors()
 
      if (NumAnalogueValues)
      {
-        float Volts = AnalogueValues[4];
+        float Volts = AnalogueValues[0];
         Volts = Volts / 36000.0;
         Volts = Volts * 7.53;
 	    LastVolts = Volts;
