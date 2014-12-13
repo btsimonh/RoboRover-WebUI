@@ -40,7 +40,7 @@ int  h_serial;
 // serial commmand sto be used with modified UBW
 char startup[]              = "\n\n\n\n\nR\n\nV\n";
 
-char setup_IR_in_direction[]= "PD,B,6,1\nPD,B,7,1\nPD,A,0,1\n";
+char setup_IR_in_direction[]= "PD,B,6,1\nPD,B,7,1\nPD,B,5,1\n";
 char setup_IR_out[]         = "PD,A,1,0\nPD,A,2,0\nPD,A,3,0\nPO,A,1,1\nPO,A,2,1\nPO,A,3,1\n";
 char setup_IR_out_power[]   = "PD,B,1,0\nPO,B,1,1\n";
 
@@ -91,6 +91,8 @@ COMMANDS Commands[] =
     { "bwdright", "HB,-5,0\n" },
 
     { "reverse",  "HB,-5,-5\n" },
+
+    { "ffwd",  "HB,10,10\n" },
 };
 
 
@@ -395,13 +397,17 @@ void* launch_sensors()
         FILE* f = fopen("/var/www/localhost/htdocs/tmp/sensordata.txt", "w");
         if (f)
     	{
-    	    fprintf(f, "Battery = %02.2fV&nbsp;&nbsp;&nbsp;&nbsp;IR LH%d RH%d LL%d RL%d B%d\n", 
+    	    fprintf(f, "Battery = %02.2fV&nbsp;&nbsp;&nbsp;&nbsp;IR LH%d RH%d LL%d RL%d B%d\nLast IR: %s %s %s\n", 
                 LastVolts,
                 IRDetect[0],
                 IRDetect[1],
                 IRDetect[2],
                 IRDetect[3],
-                IRDetect[4] );
+                IRDetect[4],
+                LastIR[0],
+                LastIR[1],
+                LastIR[2]
+                );
 
     	    fclose(f);	
     	}
@@ -475,8 +481,8 @@ void* autonomySendCommand(char* cmd) {
 char IRInputStr[][20] =
 {
     "Left",
-    "Back",
     "Right",
+    "Back",
     "Invalid"
 };
 
@@ -539,7 +545,55 @@ void parse_ubw( char c )
                 &IRValue);
             printf( "%s\n", ubwinputstore );
             printf( "-> IRIn %s; IRType %s; IRVal %X\n", IRInputStr[IRInput], IRTypeStr[IRType], IRValue );
-            sprintf(LastIR[IRInput], "%s:%08.8X", IRTypeStr[IRType], IRValue );
+
+            // don;t record probably invalid commands
+            if ((IRBits1 > 10) && IRValue)
+            {
+                sprintf(LastIR[IRInput], "%s:%8.8X", IRTypeStr[IRType], IRValue );
+            }
+
+            // IR from RoboRover Remote:
+            // 8011BF = btn release
+            // 8011A1 = fwd
+            // 8011AD = left
+            // 8011AE = right
+            // 8011A7 = bwd
+            // 8011B2 = stop
+
+            // 8011B0 = headlight on release
+
+            // 8010BD/8010AF = seek (alternating)
+            // 8011B7 = lookout
+            // 8011B5 = game
+            // 8011B8 = explore
+            // 8011B1 = demo
+
+
+            switch (IRValue)
+            {
+                case 0x8010BD: // seek
+                    sendCode(Commands[9].Serial);
+                    break;
+                
+
+               case 0x8011BF:
+               case 0x8011B2: // stop
+                    sendCode(Commands[0].Serial);
+                    break;
+               case 0x8011A1: //fwd
+                    sendCode(Commands[1].Serial);
+                    break;
+               case 0x8011AD: // left
+                    sendCode(Commands[3].Serial);
+                    break;
+               case 0x8011AE: // right
+                    sendCode(Commands[6].Serial);
+                    break;
+               case 0x8011A7: // bwd
+                    sendCode(Commands[8].Serial);
+                    break;
+            }
+
 
             //if (IRValue == 0xd555)
             if (IRValue == 0x9111)
@@ -552,7 +606,7 @@ void parse_ubw( char c )
                 {
                 if (IRInput == 0)
                     IRDetect[0]+=5;
-                if (IRInput == 2)
+                if (IRInput == 1)
                     IRDetect[1]+=5;
                 }
             
@@ -561,7 +615,7 @@ void parse_ubw( char c )
                 {
                 if (IRInput == 0)
                     IRDetect[2] += 5;
-                if (IRInput == 2)
+                if (IRInput == 1)
                     IRDetect[3] += 5;
                 }
             }
