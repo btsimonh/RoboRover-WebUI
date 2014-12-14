@@ -40,7 +40,7 @@ int  h_serial;
 // serial commmand sto be used with modified UBW
 char startup[]              = "\n\n\n\n\nR\n\nV\n";
 
-char setup_IR_in_direction[]= "PD,B,6,1\nPD,B,7,1\nPD,B,5,1\n";
+char setup_IR_in_direction[]= "PD,B,6,1\nPD,B,7,1\nPD,A,0,1\n";
 char setup_IR_out[]         = "PD,A,1,0\nPD,A,2,0\nPD,A,3,0\nPO,A,1,1\nPO,A,2,1\nPO,A,3,1\n";
 char setup_IR_out_power[]   = "PD,B,1,0\nPO,B,1,1\n";
 
@@ -475,8 +475,8 @@ void* autonomySendCommand(char* cmd) {
 char IRInputStr[][20] =
 {
     "Left",
-    "Right",
     "Back",
+    "Right",
     "Invalid"
 };
 
@@ -552,7 +552,7 @@ void parse_ubw( char c )
                 {
                 if (IRInput == 0)
                     IRDetect[0]+=5;
-                if (IRInput == 1)
+                if (IRInput == 2)
                     IRDetect[1]+=5;
                 }
             
@@ -561,7 +561,7 @@ void parse_ubw( char c )
                 {
                 if (IRInput == 0)
                     IRDetect[2] += 5;
-                if (IRInput == 1)
+                if (IRInput == 2)
                     IRDetect[3] += 5;
                 }
             }
